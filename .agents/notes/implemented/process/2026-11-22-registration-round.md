@@ -18,9 +18,9 @@ Status: implemented
 - `#117` audio-reactive（`be830a16`，squash，新增 `ui/render`）：17 套预设、自定义预设 JSON 导入导出、按住透视、无操作沉浸遮罩都能在源码里对上；Windows 采集只在 `win32` 下用系统 PowerShell 编译 `native/WindowsLoopback.cs`，非 Windows 返回 501 且不出按钮。AGPL-3.0 与第三方声明在 `NOTICE` 与 `lib/upstream` 里齐备，插件不进本仓产物，无 copyleft 传染。
 - `#115` session-history（`a55e815a`，squash，新增 `knowledge/memory`）：8 个数据源在 `lib/agents.js` 里逐一对上，WorkBuddy 在源码里本就标注实验性；依赖只有 `opencc-js@1.4.2`，npm `0.3.0` 与 repo main 逐文件哈希一致，CI 在 ubuntu/macos/windows 三平台各跑一遍。跨工具副作用（向其他 agent 的技能目录建软链）已确认有不覆盖、拒绝误删的保护，在 review 里要求作者在 README 顶部显式写一句。
 
-**退回或待作者修改 5 个，均未合入。**
+**退回或待作者修改 4 个，关闭 1 个。**
 
-- `#100`（regrevia 四插件）：11-13 的 review 之后零提交、零回复，四条意见全部未落实；分支落后 `main` 15 条并与 `community.json` 冲突。两条硬阻塞仍在：`dsh-fast-mode` 描述与 `1.7.45` 的纯提示侧实现矛盾（`index.js:965` 只读 `reasoningEffort` 记指标，注释写明不再改写请求字段），`dsh-mobile-use` 再分发 `vendor/scrcpy-server` 却未写进 `THIRD_PARTY_NOTICES.md`。按 2026-11-18 那轮「本轮不动」的结论，本轮仍不关闭，只留核实结果与整改清单。
+- `#100`（regrevia 四插件）：11-13 的 review 之后零提交、零回复，四条意见全部未落实；分支落后 `main` 15 条并与 `community.json` 冲突。两条硬阻塞仍在：`dsh-fast-mode` 描述与 `1.7.45` 的纯提示侧实现矛盾（`index.js:965` 只读 `reasoningEffort` 记指标，注释写明不再改写请求字段），`dsh-mobile-use` 再分发 `vendor/scrcpy-server` 却未写进 `THIRD_PARTY_NOTICES.md`。已按 2026-11-16 的 7 天规则关闭：作者最后活动是 11-11 的提交，已满 11 天，用户在本轮确认关闭，关闭说明里附了完整整改清单与 reopen 指引。
 - `#116` HPC Style for AI：定位不是问题（它是真插件，无 `npm` 字段也合规），问题是 `engines.dsh` 精确写成 `0.2.1-rc.5`。宿主是 0.2.2-rc.5，`semver.satisfies('0.2.2-rc.5', '0.2.1-rc.5', { includePrerelease: true })` 为 false，而宿主在有 `engines.dsh` 时只按它判定，安装前置检查会直接拒绝，条目等于「装了必然失败」。运行面其实宽松（`BUNDLED_SKILL_RANK` 与 `skills.registerProvider` 在 0.2.2-rc.5 都在），放宽区间并重新发版即可。
 - `#120` session-color：描述写兼容 `0.2.1-rc.5`，但索引装到的 latest `0.3.0` 的 `engines.dsh` 已是 `>=0.2.2-rc.1 <0.3.0-0` 且客户端只走官方 `contextMenus`，照描述装会装上用不了的一版；仓库另缺 LICENSE 文件。
 - `#121` sixlayer-memory：`cordis.patch.yml` 插入行的 id 是 `workbench`，与已被收录的 `dsh-workbench`（`liiydong/dsh-workbench`，同为 `- id: workbench`）撞同一个 loader 行 id，同时安装时按 id 的启用/禁用与补丁定位会串；仓库另缺 README 徽章所指向的 LICENSE 文件。apply 阶段向自身安装目录写 `docs/_rpc-diag.log` 属建议项。
@@ -28,7 +28,7 @@ Status: implemented
 
 ## Alternatives considered
 
-**按 2026-11-16 的 7 天规则关闭 `#100`。** 否决：作者最后活动是 11-11，现已满 11 天，形式上触发该规则；但 2026-11-18 那轮已明确「`#100` 与新提交的 `#108` 本轮不动」，那是更近的一次决定，按它继续等作者。本轮把核实结果与整改清单写进 PR，关闭与否留给用户拍板。
+**继续等作者，不关闭 `#100`。** 否决：2026-11-18 那轮以「本轮不动」把它留着，但那是当时作者活动刚满 7 天的判断；到本轮作者已 11 天没有新提交或回复，四轮意见一条未落实，分支还与 `main` 冲突，继续占着队列与评审位没有收益。关闭可逆，作者补完随时 reopen，因此按规则关闭并把整改清单留在 PR 里。
 
 **把 `#116` 的精确钉版当文案问题放过，只在描述里写清。** 否决：`engines.dsh` 存在时宿主只按它判定，句子写得再准也换不来一次能装上的安装，条目在商店里就是固定失败的路径。
 
