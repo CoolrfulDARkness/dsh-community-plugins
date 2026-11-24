@@ -44,6 +44,17 @@ exact version or a closed upper bound: the host evaluates
 the install when the range excludes the running host, so a stale range turns the
 store listing into an install that always fails.
 
+## Submission policy
+
+A maintainer-maintained list of blocked contributor accounts is recorded
+machine-readably in [.github/submission-policy.json](.github/submission-policy.json),
+which is the single source for intake enforcement; run
+`node scripts/submission-policy.mjs --list` to read the current policy.
+
+Pull requests from a listed account are closed without review by
+`.github/workflows/submission-policy.yml`. A listed account asks the owner to
+reconsider in an issue rather than opening new pull requests.
+
 ## Commit and review
 
 Use Conventional Commits (`feat(community-plugins): ...`, `fix(...)`,
