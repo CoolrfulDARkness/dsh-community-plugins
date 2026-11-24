@@ -26,10 +26,11 @@ Status: implemented
 
 - `#116`（`WangZW928`，`HPC Style for AI`）与 `#119`（`CoolrfulDARkness`，`dsh-handover-protocol`）：自 2026-11-22 提出修改意见后均无新提交或回复，距今约 2 天（未满 7 天关闭线），本轮不重复评论，保持开放等待作者回应。
 
-### 批量退回 PerryLink 135 个 PR 并拉黑
+### 批量退回 PerryLink 135 个 PR 与后续解除拉黑
 
-- 对 `#124`–`#258` 共 135 个开放 PR 逐一附带统一退回说明关闭，确认开放列表清零（0 个）。
-- 通过 GitHub `/user/blocks/PerryLink` 完成账号级拉黑，并在本仓参照 `dsh-skins` 落地仓库级投稿拒收机制：`.github/submission-policy.json`、`.github/submission-policy-notice.md`、`scripts/submission-policy.mjs`、`scripts/submission-policy.test.mjs`、`.github/workflows/submission-policy.yml`、`CONTRIBUTING.md`「Submission policy」小节，并接入 `.github/workflows/ci.yml` 的 `Script tests` 步骤（`exit 3` 仅在明确命中拒绝名单时关闭，与脚本崩溃退出码 `1` 隔离）。
+- 对 `#124`–`#258` 共 135 个开放 PR 逐一附带退回说明关闭，确认开放列表清零（0 个）。
+- 本仓先将 `PerryLink` 写入账号级拉黑与仓库级投稿拒收机制（`.github/submission-policy.json`、`.github/submission-policy-notice.md`、`scripts/submission-policy.mjs`、`scripts/submission-policy.test.mjs`、`.github/workflows/submission-policy.yml`、`CONTRIBUTING.md`「Submission policy」小节，并接入 `.github/workflows/ci.yml` 的 `Script tests` 步骤；`exit 3` 仅在明确命中拒绝名单时关闭，与脚本崩溃退出码 `1` 隔离）。
+- 随后同日按维护者最新指示解除对 `PerryLink` 的拉黑：已从 GitHub `/user/blocks` 移除该账号，并将 `.github/submission-policy.json` 的 `blockedContributors` 清空为 `[]`；已关闭的 135 个 PR（`#124`–`#258`）维持关闭不重开，可复用的仓库级投稿策略基础设施保留在位以便后续按需维护。
 - 原已在 `community.json` 中的 22 个 PerryLink 条目本轮未作删除。
 
 ## Alternatives considered
@@ -37,9 +38,10 @@ Status: implemented
 - **逐条对 135 个 PerryLink PR 做三性评估或只退回 16 个 `< 0.2.0-0` 旧条目。** 否决：单日集中涌入 135 个索引 PR 已经超出维护承载与商店目录定位，即使其余 119 个把 `engines.dsh` 写到 `0.2.1+`，也无法证明真机稳定性与实用收益；维护者明确要求全部退回并拉黑。
 - **只做 GitHub 账号级拉黑，不在本仓安装 `submission-policy.yml`。** 否决：账号拉黑记录只停留在个人 GitHub 账号侧，无法在仓库文档和 CI 里可审计、可测试地延续；参考 `dsh-skins` 落成策略文件后，若后续解除或新增限制有单一事实来源，且 CI 会在 `pull_request_target` 基线侧自动拦截。
 - **同时从 `community.json` 删掉既有 22 个 PerryLink 条目。** 否决：不在本轮授权范围内，历史已收录条目维持现状，留待维护者后续按兼容性或维护状态另行决定。
+- **解除拉黑时一并移除 `submission-policy.yml` 或重开已关闭的 135 个 PR。** 否决：保留已接入 CI 的策略框架只需把 `blockedContributors` 置空，后续无需重复搭建；而 `#124`–`#258` 仍属于超出承受范围且含 16 个 `< 0.2.0-0` 旧条目的集中批量投稿，维持关闭，作者如有符合规范的新插件可按正常节奏重新发起。
 
 ## Consequences
 
-- `community.json` 由 147 条增至 151 条，待本轮提交推送 `main` 后需在 `dsh-web` 移动 `satellites/dsh-community-plugins` gitlink 并重建 `market/dist`，四项新入库插件才会出现在 `dsh-market.com`。
-- `PerryLink` 已被 GitHub 账号拉黑并写入 `.github/submission-policy.json`，后续来自该账号的 PR 将由 `submission-policy.yml` 在未读状态下自动说明原因并关闭；申诉路径已在 `CONTRIBUTING.md` 写明。
+- `community.json` 由 147 条增至 151 条，已同步移动 `dsh-web` 的 `satellites/dsh-community-plugins` gitlink（`620f381`）并重建 `market/dist`；随后解除拉黑的策略与文档提交不改动 `community.json`，不触发额外市场钉版移动。
+- `PerryLink` 当前既不在 GitHub `/user/blocks` 也不在 `.github/submission-policy.json` 的 `blockedContributors` 中（`blockedContributors: []`）；仓库保留了 `submission-policy.yml` 与 `scripts/submission-policy.mjs` 基础设施，若后续再次触发拒收条件只需向 `.github/submission-policy.json` 添加条目即可生效。
 - `dsh-connectors` 当前未声明 `engines.dsh`（仅写了 `dsh.compatibility.dsh`），需在下个版本由作者补齐以启用宿主安装前版本检查。

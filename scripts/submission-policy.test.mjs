@@ -22,25 +22,42 @@ import {
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SCRIPT = join(ROOT, 'scripts', 'submission-policy.mjs')
 
-function run(args) {
-  return spawnSync(process.execPath, [SCRIPT, ...args], { cwd: ROOT, encoding: 'utf8' })
+function run(args, extraEnv = {}) {
+  return spawnSync(process.execPath, [SCRIPT, ...args], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env: { ...process.env, ...extraEnv },
+  })
 }
 
-test('the repository policy is well-formed and blocks PerryLink', () => {
+test('the repository policy is well-formed and does not block PerryLink', () => {
   const policy = loadPolicy()
   assert.equal(policy.version, POLICY_VERSION)
-  const blocked = findBlockedContributor(policy, 'PerryLink')
-  assert.ok(blocked, 'PerryLink must be a blocked contributor')
-  assert.equal(blocked.blockedAt, '2026-11-24')
+  assert.equal(findBlockedContributor(policy, 'PerryLink'), null)
+  const result = run(['--login', 'PerryLink'])
+  assert.equal(result.status, 0)
+  assert.match(result.stdout, /PerryLink is not a blocked contributor/)
 })
 
-test('the blocked-contributor match ignores case and surrounding space', () => {
-  const policy = loadPolicy()
-  for (const login of ['perrylink', 'PERRYLINK', ' PerryLink ']) {
-    assert.ok(findBlockedContributor(policy, login), login + ' must match')
+test('blocked-contributor matching ignores case and whitespace without prefix collisions', () => {
+  const sandbox = mkdtempSync(join(tmpdir(), 'submission-policy-'))
+  try {
+    const file = join(sandbox, 'policy.json')
+    writeFileSync(file, JSON.stringify({
+      version: POLICY_VERSION,
+      blockedContributors: [
+        { login: 'Blocked-Example', blockedAt: '2026-11-24', reason: 'example' },
+      ],
+    }))
+    const policy = loadPolicy(file)
+    for (const login of ['blocked-example', 'BLOCKED-EXAMPLE', ' Blocked-Example ']) {
+      assert.ok(findBlockedContributor(policy, login), login + ' must match')
+    }
+    assert.equal(findBlockedContributor(policy, 'Blocked-Example2'), null)
+    assert.equal(findBlockedContributor(policy, 'Blocked'), null)
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true })
   }
-  assert.equal(findBlockedContributor(policy, 'PerryLink2'), null)
-  assert.equal(findBlockedContributor(policy, 'Perry'), null)
 })
 
 test('an unlisted contributor is allowed with exit code 0', () => {
@@ -49,10 +66,22 @@ test('an unlisted contributor is allowed with exit code 0', () => {
   assert.equal(result.status, 0)
 })
 
-test('the CLI reports a blocked contributor with the blocked exit code', () => {
-  const result = run(['--login', 'PerryLink'])
-  assert.equal(result.status, BLOCKED_EXIT_CODE)
-  assert.match(result.stdout, /blocked contributor PerryLink/)
+test('the CLI reports a blocked contributor with exit code 3 via SUBMISSION_POLICY_FILE', () => {
+  const sandbox = mkdtempSync(join(tmpdir(), 'submission-policy-'))
+  try {
+    const file = join(sandbox, 'policy.json')
+    writeFileSync(file, JSON.stringify({
+      version: POLICY_VERSION,
+      blockedContributors: [
+        { login: 'blocked-example', blockedAt: '2026-11-24', reason: 'example' },
+      ],
+    }))
+    const result = run(['--login', 'blocked-example'], { SUBMISSION_POLICY_FILE: file })
+    assert.equal(result.status, BLOCKED_EXIT_CODE)
+    assert.match(result.stdout, /blocked contributor blocked-example \(since 2026-11-24\)/)
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true })
+  }
 })
 
 test('a crashed checker can never read as a blocked contributor', () => {

@@ -1,11 +1,5 @@
 {
   "version": 1,
   "comment": "Repository submission policy. blockedContributors: accounts whose pull requests are closed without review. Enforced by .github/workflows/submission-policy.yml and scripts/submission-policy.mjs.",
-  "blockedContributors": [
-    {
-      "login": "PerryLink",
-      "blockedAt": "2026-11-24",
-      "reason": "Maintainer decision following mass automated submission of 135 pull requests in 4 hours on 2026-11-22 (including 16 previously retired <0.2.0-0 entries). Pull requests from this account are closed without review."
-    }
-  ]
+  "blockedContributors": []
 }

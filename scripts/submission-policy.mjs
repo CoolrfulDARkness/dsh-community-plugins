@@ -18,6 +18,11 @@ import { fileURLToPath } from 'node:url'
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 export const POLICY_FILE = join(ROOT, '.github', 'submission-policy.json')
 export const POLICY_VERSION = 1
+
+function defaultPolicyFile() {
+  const override = process.env.SUBMISSION_POLICY_FILE?.trim()
+  return override ? resolve(override) : POLICY_FILE
+}
 /** Exit code for a blocked contributor. See the exit-code note above. */
 export const BLOCKED_EXIT_CODE = 3
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
@@ -39,7 +44,7 @@ function requireDate(value, where) {
 }
 
 /** Read and validate the policy file. Throws on a malformed policy. */
-export function loadPolicy(file = POLICY_FILE) {
+export function loadPolicy(file = defaultPolicyFile()) {
   const policy = JSON.parse(readFileSync(file, 'utf8'))
   if (policy === null || typeof policy !== 'object' || Array.isArray(policy)) {
     fail('policy must be an object')
